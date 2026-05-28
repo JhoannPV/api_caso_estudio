@@ -1,7 +1,7 @@
-# API de Agrupamiento - Calidad del Aire
+# API de Casos de Estudio
 
-API Flask que clasifica el nivel de contaminación (Bajo/Alto) usando KMeans
-entrenado sobre las variables ambientales del dataset AirQualityUCI.
+API Flask con dos módulos: **Agrupamiento** (calidad del aire) y **Clasificación**
+(rendimiento estudiantil). Ambos modelos se entrenan con datos del repositorio UCI.
 
 ## Requisitos
 
@@ -23,7 +23,11 @@ python app.py
 
 La API arranca en `http://localhost:3000`.
 
-## Endpoint
+## Endpoints
+
+### 1. Agrupamiento — Calidad del Aire
+
+Clasifica el nivel de contaminación en **Bajo/Alto** usando KMeans.
 
 ```
 POST /api/agrupamiento/predict
@@ -37,7 +41,7 @@ Content-Type: application/json
 }
 ```
 
-### Respuesta
+**Respuesta:**
 
 ```json
 {
@@ -56,20 +60,100 @@ Content-Type: application/json
 }
 ```
 
-- **label**: cluster asignado (0 = Bajo, 1 = Alto)
-- **nivel**: etiqueta legible
-- **distancia_al_centroide**: distancia euclidiana al centroide del cluster
-- **centroide**: valores del centroide de referencia para las 4 variables
+| Campo | Descripción |
+|---|---|
+| `label` | Cluster asignado (0 = Bajo, 1 = Alto) |
+| `nivel` | Etiqueta legible |
+| `distancia_al_centroide` | Distancia euclidiana al centroide |
+| `centroide` | Valores del centroide de referencia |
+
+### 2. Clasificación — Éxito Estudiantil
+
+Predice si un estudiante **Aprueba o Reprueba** el curso de matemáticas usando
+Gradient Boosting con 27 variables.
+
+```
+POST /api/clasificacion/predict
+Content-Type: application/json
+
+{
+  "sex": "F",
+  "age": 18,
+  "famsize": "GT3",
+  "Medu": 4,
+  "Fedu": 4,
+  "Mjob": "at_home",
+  "Fjob": "teacher",
+  "reason": "course",
+  "guardian": "mother",
+  "traveltime": 2,
+  "studytime": 2,
+  "failures": 0,
+  "schoolsup": "yes",
+  "famsup": "no",
+  "paid": "no",
+  "activities": "no",
+  "nursery": "yes",
+  "romantic": "no",
+  "famrel": 4,
+  "freetime": 3,
+  "goout": 4,
+  "Dalc": 1,
+  "Walc": 1,
+  "health": 3,
+  "absences": 6,
+  "G1": 5,
+  "G2": 6
+}
+```
+
+**Respuesta:**
+
+```json
+{
+  "ok": true,
+  "data": {
+    "label": 0,
+    "resultado": "Reprueba",
+    "probabilidad_reprobar": 0.9957,
+    "probabilidad_aprobar": 0.0043
+  }
+}
+```
+
+| Campo | Descripción |
+|---|---|
+| `label` | 0 = Reprueba, 1 = Aprueba |
+| `resultado` | Etiqueta legible |
+| `probabilidad_reprobar` | Probabilidad estimada de reprobar (0-1) |
+| `probabilidad_aprobar` | Probabilidad estimada de aprobar (0-1) |
+
+### Valores válidos para campos categóricos
+
+| Campo | Valores |
+|---|---|
+| `sex` | `F`, `M` |
+| `famsize` | `LE3`, `GT3` |
+| `Mjob`, `Fjob` | `teacher`, `health`, `services`, `at_home`, `other` |
+| `reason` | `home`, `reputation`, `course`, `other` |
+| `guardian` | `mother`, `father`, `other` |
+| `schoolsup`, `famsup`, `paid`, `activities`, `nursery`, `romantic` | `yes`, `no` |
 
 ## Estructura
 
 ```
 api_caso_estudio/
-├── app.py                    # Entry point
-├── config.py                 # Rutas, constantes
-├── models/agrupamiento.py    # Entrenamiento y predicción
-├── routes/agrupamiento.py    # Blueprint Flask
-├── utils/response.py         # Helpers de respuesta
-├── AirQualityUCI_preparado.csv  # Dataset (entrenamiento al arrancar)
-└── requirements.txt
+├── app.py                          # Entry point
+├── config.py                       # Rutas, constantes (agrupamiento)
+├── models/
+│   ├── agrupamiento.py             # KMeans + entrenamiento al arrancar
+│   ├── clasificacion.py            # Gradient Boosting + encoders
+│   └── __init__.py                 # Instancias singleton
+├── routes/
+│   ├── agrupamiento.py             # Blueprint /api/agrupamiento
+│   ├── clasificacion.py            # Blueprint /api/clasificacion
+│   └── __init__.py                 # Registro de blueprints
+├── utils/response.py               # Helpers JSON
+├── requirements.txt
+└── README.md
 ```
