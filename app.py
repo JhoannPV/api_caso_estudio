@@ -11,9 +11,10 @@ register_routes(app)
 @app.route("/")
 def home():
     return jsonify({
-        "api": "API de Agrupamiento - Calidad del Aire",
+        "api": "API de Casos de Estudio",
         "endpoints": {
-            "POST /api/agrupamiento/predict": "Clasificar un registro en Bajo/Alto"
+            "POST /api/agrupamiento/predict": "Clasificar contaminacion en Bajo/Alto",
+            "POST /api/clasificacion/predict": "Predecir exito estudiantil (Aprueba/Reprueba)"
         }
     })
 
