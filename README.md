@@ -1,7 +1,8 @@
 # API de Casos de Estudio
 
-API Flask con dos módulos: **Agrupamiento** (calidad del aire) y **Clasificación**
-(rendimiento estudiantil). Ambos modelos se entrenan con datos del repositorio UCI.
+API Flask con tres módulos: **Agrupamiento** (calidad del aire), **Clasificación**
+(rendimiento estudiantil) y **Regresión** (precio de viviendas).
+Los modelos se entrenan con datos del repositorio UCI y California Housing.
 
 ## Requisitos
 
@@ -128,6 +129,60 @@ Content-Type: application/json
 | `probabilidad_reprobar` | Probabilidad estimada de reprobar (0-1) |
 | `probabilidad_aprobar` | Probabilidad estimada de aprobar (0-1) |
 
+### 3. Regresión — Precio de Vivienda
+
+Predice el valor de mercado de una vivienda en California usando
+Gradient Boosting con 8 variables seleccionadas por RFECV.
+
+```
+POST /api/regresion/predict
+Content-Type: application/json
+
+{
+  "longitude": -122.23,
+  "latitude": 37.88,
+  "housing_median_age": 41,
+  "total_bedrooms": 129,
+  "median_income": 8.3252,
+  "ocean_proximity": "NEAR BAY",
+  "rooms_per_household": 6.98,
+  "population_per_household": 2.56
+}
+```
+
+**Respuesta:**
+
+```json
+{
+  "ok": true,
+  "data": {
+    "valor_predicho": 417313.39,
+    "valor_formateado": "$417,313",
+    "features_usadas": [
+      "longitude", "latitude", "housing_median_age", "total_bedrooms",
+      "median_income", "ocean_INLAND", "rooms_per_household",
+      "population_per_household"
+    ]
+  }
+}
+```
+
+| Campo | Descripción |
+|---|---|
+| `valor_predicho` | Precio estimado en USD |
+| `valor_formateado` | Precio con formato legible |
+| `features_usadas` | Lista de variables utilizadas por el modelo |
+
+**Mapeo de `ocean_proximity`:**
+
+| Valor original | `ocean_INLAND` |
+|---|---|
+| `<1H OCEAN` | 0 |
+| `INLAND` | 1 |
+| `NEAR OCEAN` | 0 |
+| `NEAR BAY` | 0 |
+| `ISLAND` | 0 |
+
 ### Valores válidos para campos categóricos
 
 | Campo | Valores |
@@ -145,13 +200,24 @@ Content-Type: application/json
 api_caso_estudio/
 ├── app.py                          # Entry point
 ├── config.py                       # Rutas, constantes (agrupamiento)
-├── models/
+├── data/                           # Conjuntos de datos (CSV)
+│   ├── AirQualityUCI_preparado.csv
+│   └── student-mat.csv
+├── artifacts/                      # Modelos serializados (.pkl)
+│   ├── modelo_clasificacion.pkl
+│   ├── features_clasificacion.pkl
+│   ├── encoders_clasificacion.pkl
+│   ├── modelo_regresion.pkl
+│   └── features_regresion.pkl
+├── models/                         # Clases de los modelos
 │   ├── agrupamiento.py             # KMeans + entrenamiento al arrancar
 │   ├── clasificacion.py            # Gradient Boosting + encoders
+│   ├── regresion.py                # Gradient Boosting regressor
 │   └── __init__.py                 # Instancias singleton
-├── routes/
-│   ├── agrupamiento.py             # Blueprint /api/agrupamiento
-│   ├── clasificacion.py            # Blueprint /api/clasificacion
+├── routes/                         # Blueprints Flask
+│   ├── agrupamiento.py             # /api/agrupamiento
+│   ├── clasificacion.py            # /api/clasificacion
+│   ├── regresion.py                # /api/regresion
 │   └── __init__.py                 # Registro de blueprints
 ├── utils/response.py               # Helpers JSON
 ├── requirements.txt

@@ -14,7 +14,8 @@ def home():
         "api": "API de Casos de Estudio",
         "endpoints": {
             "POST /api/agrupamiento/predict": "Clasificar contaminacion en Bajo/Alto",
-            "POST /api/clasificacion/predict": "Predecir exito estudiantil (Aprueba/Reprueba)"
+            "POST /api/clasificacion/predict": "Predecir exito estudiantil (Aprueba/Reprueba)",
+            "POST /api/regresion/predict": "Predecir precio de vivienda (USD)"
         }
     })
 

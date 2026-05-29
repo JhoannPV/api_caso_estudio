@@ -7,9 +7,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 class ClasificacionModel:
     def __init__(self):
-        self.model = joblib.load(BASE_DIR / "modelo_clasificacion.pkl")
-        self.features = joblib.load(BASE_DIR / "features_clasificacion.pkl")
-        self.encoders = joblib.load(BASE_DIR / "encoders_clasificacion.pkl")
+        artifacts = BASE_DIR / "artifacts"
+        self.model = joblib.load(artifacts / "modelo_clasificacion.pkl")
+        self.features = joblib.load(artifacts / "features_clasificacion.pkl")
+        self.encoders = joblib.load(artifacts / "encoders_clasificacion.pkl")
         self.cat_cols = list(self.encoders.keys())
 
     def _preparar_input(self, datos: dict) -> np.ndarray:
