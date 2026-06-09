@@ -1,23 +1,18 @@
-import pandas as pd
+import joblib
 import numpy as np
-from sklearn.preprocessing import StandardScaler
-from sklearn.cluster import KMeans
+import pandas as pd
+from pathlib import Path
 from scipy.spatial.distance import cdist
-from config import DATA_PATH, FEATURES, N_CLUSTERS, RANDOM_STATE
+from config import FEATURES
+
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 class AgrupamientoModel:
     def __init__(self):
-        self.scaler = StandardScaler()
-        self.model = KMeans(n_clusters=N_CLUSTERS, random_state=RANDOM_STATE, n_init=10)
-        self.high_label: int | None = None
-        self._entrenar()
-
-    def _entrenar(self):
-        df = pd.read_csv(DATA_PATH)
-        X = df[FEATURES].values
-        X_scaled = self.scaler.fit_transform(X)
-        self.model.fit(X_scaled)
+        artifacts = BASE_DIR / "artifacts"
+        self.scaler = joblib.load(artifacts / "scaler_agrupamiento.pkl")
+        self.model = joblib.load(artifacts / "kmeans_agrupamiento.pkl")
         centroids_orig = self.scaler.inverse_transform(self.model.cluster_centers_)
         self.high_label = int(np.argmax(centroids_orig[:, FEATURES.index("NOx(GT)")]))
 
@@ -38,5 +33,5 @@ class AgrupamientoModel:
             "label": label,
             "nivel": nivel,
             "distancia_al_centroide": round(dist, 4),
-            "centroide": centroid
+            "centroide": centroid,
         }
