@@ -28,7 +28,7 @@ La API arranca en `http://localhost:3000`.
 
 ### 1. Agrupamiento — Calidad del Aire
 
-Clasifica el nivel de contaminación en **Bajo/Alto** usando KMeans.
+Clasifica el nivel de contaminación en **Bajo/Alto** usando KMeans pre-entrenado. El modelo se serializa desde el notebook `1. AGRUPAMIENTO/AnalisisCalidadAire.ipynb` y se carga desde `artifacts/` al iniciar la API, sin reentrenamiento.
 
 ```
 POST /api/agrupamiento/predict
@@ -208,9 +208,11 @@ api_caso_estudio/
 │   ├── features_clasificacion.pkl
 │   ├── encoders_clasificacion.pkl
 │   ├── modelo_regresion.pkl
-│   └── features_regresion.pkl
+│   ├── features_regresion.pkl
+│   ├── scaler_agrupamiento.pkl
+│   └── kmeans_agrupamiento.pkl
 ├── models/                         # Clases de los modelos
-│   ├── agrupamiento.py             # KMeans + entrenamiento al arrancar
+│   ├── agrupamiento.py             # KMeans + carga de artefactos serializados
 │   ├── clasificacion.py            # Gradient Boosting + encoders
 │   ├── regresion.py                # Gradient Boosting regressor
 │   └── __init__.py                 # Instancias singleton
